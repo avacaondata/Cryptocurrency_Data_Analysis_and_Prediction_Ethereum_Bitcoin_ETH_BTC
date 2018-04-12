@@ -1,0 +1,328 @@
+---
+title: "Annex2_2"
+author: "Alejandro Vaca"
+date: "3/3/2018"
+output: word_document
+---
+
+In the first chunk, the whole data mining and transformation process is performed, using the same code as in the previous part of Annex 2. However, as the directory must be changed. This is because in Annex2, as seen in previous code, a generic function to read all csv is used. In this section, we need to read also, but separately, all data from Google Trends. This means that if we do not choose a new directory with all the cryptocurrencies' csvs plus the google trends csvs, our generic function would read the latter also; therefore the data for the beginning of Annex 1 would not work. For this reason, the first thing to do for running this Rmd is to choose as a directory (in my computer): ~Documents/TFG/google_interest_portfolio_selection. For the first part of the Annex 1 (the Rmd previous to this), the directory: ~Documents/TFG/portfolio_analysis_tfg should be chosen. 
+```{r}
+
+library(readr)
+btc <- read_csv('btc.csv')
+dash <- read_csv('dash.csv')
+eth <- read_csv('eth.csv')
+iota <- read_csv('iot.csv')
+lsk <- read_csv('lsk.csv')
+maid <- read_csv('maid.csv')
+neo <- read_csv('neo.csv')
+xem <- read_csv('xem.csv')
+xmr <- read_csv('xmr.csv')
+xrp <- read_csv('xrp.csv')
+zec <- read_csv('zec.csv')
+
+btc = data.frame(btc)
+dash = data.frame(dash)
+eth = data.frame(eth)
+iota = data.frame(iota)
+lsk = data.frame(lsk)
+maid = data.frame(maid)
+neo = data.frame(neo)
+xem = data.frame(xem)
+xmr = data.frame(xmr)
+xrp = data.frame(xrp)
+zec = data.frame(zec)
+
+
+btc = btc[ , 2:5]
+dash = dash[ , 2:5]
+eth = eth[ , 2:5]
+iota = iota[ , 2:5]
+lsk = lsk[ , 2:5]
+neo = neo[ , 2:5]
+xem = xem[ , 2:5]
+xmr = xmr[ , 2:5]
+xrp = xrp[ , 2:5]
+zec = zec[ , 2:5]
+maid = maid[ , 2:5]
+
+
+btc$volatility = btc[,3] - btc[,4]
+dash$volatility = dash[,3] - dash[,4]
+#we cannot use eos because there is no data about its volatility (high -low)
+eth$volatility = eth[,3] - eth[,4]
+iota$volatility = iota[,3] - iota[,4]
+lsk$volatility = lsk[,3] - lsk[,4]
+neo$volatility = neo[,3] - neo[,4]
+xem$volatility = xem[,3] - xem[,4]
+xmr$volatility = xmr[,3] - xmr[,4]
+xrp$volatility = xrp[,3] - xrp[,4]
+zec$volatility = zec[,3] - zec[,4]
+maid$volatility = maid[,3] - maid[,4]
+
+
+n = 196
+
+btc = btc[(nrow(btc)-n):nrow(btc),]
+dash = dash[(nrow(dash)-n):nrow(dash),]
+eth = eth[(nrow(eth)-n):nrow(eth),]
+iota = iota[(nrow(iota)-n):nrow(iota),]
+lsk = lsk[(nrow(lsk)-n):nrow(lsk),]
+xem = xem[(nrow(xem)-n):nrow(xem),]
+xmr = xmr[(nrow(xmr)-n):nrow(xmr),]
+xrp = xrp[(nrow(xrp)-n):nrow(xrp),]
+zec = zec[(nrow(zec)-n):nrow(zec),]
+maid = maid[(nrow(maid)-n):nrow(maid),]
+
+btc$ret = c(NA, diff(log(btc$close)))
+dash$ret = c(NA, diff(log(dash$close)))
+eth$ret = c(NA, diff(log(eth$close)))
+iota$ret = c(NA, diff(log(iota$close)))
+lsk$ret = c(NA, diff(log(lsk$close)))
+neo$ret = c(NA, diff(log(neo$close)))
+xem$ret = c(NA, diff(log(xem$close)))
+xmr$ret = c(NA, diff(log(xmr$close)))
+xrp$ret = c(NA, diff(log(xrp$close)))
+zec$ret = c(NA, diff(log(zec$close)))
+maid$ret = c(NA, diff(log(maid$close)))
+
+btc = btc[2:nrow(btc), ]
+eth = eth[2:nrow(eth), ]
+dash = dash[2:197, ]
+iota = iota[2:197, ]
+lsk = lsk[2:197, ]
+neo = neo[2:197, ]
+xem = xem[2:197, ]
+xmr = xmr[2:197, ]
+xrp = xrp[2:197, ]
+zec = zec[2:197, ]
+maid = maid[2:197, ]
+```
+
+```{r}
+#the next step is to create tables for each category of cryptocurrencies, and put some variables 
+
+#for that we need to read the variables again, one by one, as done in the previous code.
+
+
+total_perc_ret_btc = (btc$close[nrow(btc)] - btc$close[1])/btc$close[1]
+print(total_perc_ret_btc)
+total_perc_ret_eth = (eth$close[nrow(eth)] - eth$close[1])/eth$close[1]
+print(total_perc_ret_eth)
+
+mean_daily_vol_btc = mean(btc$volatility)
+print(mean_daily_vol_btc)
+mean_daily_vol_eth = mean(eth$volatility)
+print(mean_daily_vol_eth) #much lower volatility
+
+mean_price_btc = mean(btc$close)
+mean_vol_to_mean_price_btc = mean_daily_vol_btc/mean_price_btc
+
+mean_price_eth = mean(eth$close)
+mean_vol_to_mean_price_eth = mean_daily_vol_eth/mean_price_eth
+
+mean_daily_ret_btc = mean(btc$ret)
+mean_daily_ret_eth = mean(eth$ret)
+
+mean_daily_perc_vol_btc = mean(btc$volatility) / mean(btc$close)
+mean_daily_perc_vol_eth = mean(eth$volatility) / mean(eth$close)
+
+
+#we now need to take into account the google interest towards the cryptocurrencies
+
+library(readr)
+interest = read_csv('eth_btc_google.csv')
+interest = data.frame(interest)
+interest$btc = interest$btc/100
+interest$eth = interest$eth/100
+interest$date = as.Date(interest$date)
+
+library(ggplot2)
+
+btc_eth_int <- ggplot(data = interest, aes(x = date)) +
+  geom_line(aes(y = btc, linetype = "btc")) +
+  geom_line(aes(y = eth, linetype = "eth")) +
+  ggtitle('                     Interest on btc and eth      ') +
+  scale_linetype_discrete(name ="")
+btc_eth_int
+
+
+```
+```{r}
+returns = cbind(btc$ret, eth$ret, dash$ret, iota$ret, lsk$ret, neo$ret, xem$ret, xmr$ret, xrp$ret, zec$ret, maid$ret)
+returns = data.frame(returns)
+colnames(returns) = c("btc", "eth", "dash", "iota", "lsk", "neo", "xem", "xmr", "xrp", "zec", "maid")
+```
+
+```{r}
+avg_interest_btc = mean(interest$btc)
+avg_interest_eth = mean(interest$eth)
+btc2 = read_csv('btc.csv')
+nrow(btc2) #this number of observations is going to be used for taking the inverse of the time, so that we give more weight to currencies that have had good performance but are not still in the maturity stage, not even close (btc is also not in the maturity stage, but we expect ethereum to have more relevance in the coming years, as in less time it has done as much as bitcoin for the blockchain community, if not more)
+inv_time_btc = 1 / (nrow(btc2) / 365) #0.1316264
+
+eth2 = read_csv('eth.csv')
+nrow(eth2)
+inv_time_eth = 1 / (nrow(eth2) / 365) #0.3941685
+
+#let's visualize the movement of the returns of both series
+ggplot(data = returns, aes(x = seq(1, nrow(returns), 1))) +
+  geom_line(aes(y = btc, linetype = "btc")) +
+  geom_line(aes(y = eth, linetype = "eth")) +
+  ggtitle('                                btc and eth returns') +
+  scale_linetype_discrete(name = "")
+
+
+
+```
+```{r}
+#this chunk contains all the rest of calculations for including in the excel spreadsheet (where the final computation of portfolio weights is carried out)
+
+#anonymity cryptos
+total_perc_ret_xmr = (xmr$close[nrow(xmr)] - xmr$close[1])/xmr$close[1]
+total_perc_ret_zec = (zec$close[nrow(zec)] - zec$close[1])/zec$close[1]
+total_perc_ret_dash = (dash$close[nrow(dash)] - dash$close[1])/dash$close[1]
+
+mean_ret_xmr = mean(returns$xmr)
+mean_ret_zec = mean(returns$zec)
+mean_ret_dash = mean(returns$dash)
+
+
+anonim_interest = read_csv('anonimity_cryptos_interest.csv')
+anonim_interest = data.frame(anonim_interest)
+anonim_interest$dash = anonim_interest$dash/100
+anonim_interest$zec = anonim_interest$zec/100
+anonim_interest$xmr = anonim_interest$xmr/100
+
+mean_int_dash = mean(anonim_interest$dash)
+mean_int_zec = mean(anonim_interest$zec)
+mean_int_xmr = mean(anonim_interest$xmr)
+
+mean_vol_dash = mean(dash$volatility)
+mean_vol_zec = mean(zec$volatility)
+mean_vol_xmr = mean(xmr$volatility)
+
+mean_perc_vol_dash = mean_vol_dash / mean(dash$close)
+mean_perc_vol_zec = mean_vol_zec / mean(zec$close)
+mean_perc_vol_xmr = mean_vol_xmr / mean(xmr$close)
+
+xmr2 = read_csv('xmr.csv')
+nrow(xmr2)
+inv_time_xmr = 1 / (nrow(xmr2) / 365)
+
+zec2 = read_csv('zec.csv')
+inv_time_zec = 1 / (nrow(zec2) / 365)
+
+dash2 = read_csv('dash.csv')
+inv_time_dash = 1 / (nrow(dash2) / 365)
+
+
+xem2 = read_csv('xem.csv')
+tot_perc_ret_xem = (xem$close[nrow(xem)] - xem$close[1]) / xem$close[1]
+tot_perc_ret_xem
+
+xrp2 = read_csv('xrp.csv')
+tot_perc_ret_xrp = (xrp$close[nrow(xrp)] - xrp$close[1] ) / xrp$close[1]
+tot_perc_ret_xrp
+
+tot_perc_ret_neo = (neo$close[nrow(neo)] - neo$close[1]) / neo$close[1]
+tot_perc_ret_neo
+
+mean_daily_ret_xem = mean(xem$ret)
+mean_daily_ret_xem
+mean_daily_ret_xrp = mean(xrp$ret)
+mean_daily_ret_xrp
+mean_daily_ret_neo = mean(neo$ret)
+mean_daily_ret_neo
+
+platform_int = read_csv('platform_interest.csv')
+platform_int = data.frame(platform_int)
+platform_int$xrp[1:3] = c(0,0,0) #we clean the data to have only numbers. 
+platform_int$xem = platform_int$xem/100
+platform_int$xrp = as.numeric(platform_int$xrp)
+#platform_int = gsub(pattern = '<1', x = platform_int, replacement = 0.5)
+platform_int$xrp = platform_int$xrp/100
+platform_int$neo = platform_int$neo/100
+
+mean_vol_xem = mean(xem$volatility)
+mean_vol_xrp = mean(xrp$volatility)
+mean_vol_neo = mean(neo$volatility)
+mean_vol_xem
+mean_vol_xrp
+mean_vol_neo
+
+mean_perc_vol_xem = mean_vol_xem/mean(xem$close)
+mean_perc_vol_xrp = mean_vol_xrp/mean(xrp$close)
+mean_perc_vol_neo = mean_vol_neo/mean(neo$close)
+
+inv_time_xem = 1/(nrow(xem2)/365)
+inv_time_xrp = 1/(nrow(xrp2)/365)
+
+neo2 = read_csv('neo.csv')
+inv_time_neo = 1/(nrow(neo2)/365)
+
+
+#now let's do the protocol currencies analysis
+tot_perc_ret_iota = (iota$close[nrow(iota)] - iota$close[1]) / iota$close[1]
+tot_perc_ret_lsk = (lsk$close[nrow(lsk)] - lsk$close[1]) / lsk$close[1]
+tot_perc_ret_maid = (maid$close[nrow(maid)] - maid$close[1]) / maid$close[1]
+
+mean_daily_ret_iota = mean(iota$ret)
+mean_daily_ret_iota
+mean_daily_ret_lsk = mean(lsk$ret)
+mean_daily_ret_lsk
+mean_daily_ret_maid = mean(maid$ret)
+mean_daily_ret_maid
+
+
+#now let us check the google interest in each of the protocol currencies
+
+protocol_int = read_csv('protocol_interest.csv')
+
+protocol_int$lsk = ifelse(protocol_int$lsk == "<1", 0.5, protocol_int$lsk) #we transform all values <1 to 0.5, as the expected mean between 0 and 1 is supposed to be this if the range behaves normally (bell-shaped).
+protocol_int$maid = ifelse(protocol_int$maid == "<1", 0.5, protocol_int$maid)
+
+protocol_int$iota = as.numeric(protocol_int$iota)
+protocol_int$lsk = as.numeric(protocol_int$lsk)
+protocol_int$maid = as.numeric(protocol_int$maid)
+
+protocol_int$iota = protocol_int$iota/100
+protocol_int$lsk = protocol_int$lsk/100
+protocol_int$maid = protocol_int$maid / 100
+
+avg_int_iota = mean(protocol_int$iota)
+avg_int_lsk = mean(protocol_int$lsk)
+avg_int_maid = mean(protocol_int$maid)
+
+mean_vol_iota = mean(iota$volatility)
+mean_vol_lsk = mean(lsk$volatility)
+mean_vol_maid = mean(maid$volatility)
+
+mean_vol_iota
+mean_vol_lsk
+mean_vol_maid
+
+
+perc_vol_iota = mean_vol_iota / mean(iota$close)
+perc_vol_lsk = mean_vol_lsk / mean(lsk$close)
+perc_vol_maid = mean_vol_maid / mean(maid$close)
+
+perc_vol_iota
+perc_vol_lsk
+perc_vol_maid
+
+iota2 = read_csv('iot.csv')
+inv_time_iota = 1 / (nrow(iota2) / 365)
+
+lsk2 = read_csv('lsk.csv')
+inv_time_lsk = 1 / (nrow(lsk2) / 365)
+
+maid2 = read_csv('maid.csv')
+inv_time_maid = 1 / (nrow(maid) / 365)
+
+inv_time_iota
+inv_time_lsk
+inv_time_maid
+
+```
+
