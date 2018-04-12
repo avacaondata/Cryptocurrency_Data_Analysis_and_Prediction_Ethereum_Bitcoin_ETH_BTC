@@ -1,0 +1,2 @@
+# Cryptocurrency_Data_Analysis_and_Prediction_Ethereum_Bitcoin_ETH_BTC
+In these Python and R scripts, markdown and notebooks, I provide a basis for understanding how the cryptocurrencies market works, as well as how we can divide it into categories, supported by a hierarchical clustering. Other contributions regard the accurate prediction of Bitcoin and Ether Prices one day ahead and nice data bases with which to play around and test my results, if wanted. 
